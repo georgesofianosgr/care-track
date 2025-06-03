@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Checkbox } from 'react-aria-components';
 import { Activity, ActivityCompletion } from '../types';
 import { getWeekDates, formatDate, getDayNames } from '../utils/dateUtils';
@@ -9,8 +10,32 @@ interface WeeklyTrackerProps {
 }
 
 export function WeeklyTracker({ activities, completions, onToggleCompletion }: WeeklyTrackerProps) {
-  const weekDates = getWeekDates();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const weekDates = getWeekDates(currentDate);
   const dayNames = getDayNames();
+
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
+    setCurrentDate(newDate);
+  };
+
+  const getMonthYear = () => {
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const getWeekRange = () => {
+    const firstDay = weekDates[0];
+    const lastDay = weekDates[6];
+    const firstMonth = firstDay.toLocaleDateString('en-US', { month: 'short' });
+    const lastMonth = lastDay.toLocaleDateString('en-US', { month: 'short' });
+    
+    if (firstMonth === lastMonth) {
+      return `${firstMonth} ${firstDay.getDate()}-${lastDay.getDate()}`;
+    } else {
+      return `${firstMonth} ${firstDay.getDate()} - ${lastMonth} ${lastDay.getDate()}`;
+    }
+  };
 
   const isActivityCompleted = (activityId: string, date: string): boolean => {
     return completions.some(c => c.activityId === activityId && c.date === date && c.completed);
@@ -22,6 +47,39 @@ export function WeeklyTracker({ activities, completions, onToggleCompletion }: W
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
+      {/* Header with navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">{getMonthYear()}</h2>
+          <p className="text-sm text-gray-600">Week of {getWeekRange()}</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => navigateWeek('prev')}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            aria-label="Previous week"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setCurrentDate(new Date())}
+            className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Today
+          </button>
+          <button
+            onClick={() => navigateWeek('next')}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            aria-label="Next week"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[320px] sm:min-w-[600px]">
           <thead>
