@@ -114,9 +114,9 @@ export function ActivityModal({ isOpen, onClose, onSave, editActivity, onUpdate,
                       onChange={() => handleDayToggle(index)}
                       className="mb-1"
                     >
-                      <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-gray-300 rounded flex items-center justify-center">
                         {selectedDays.includes(index) && (
-                          <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                          <div className="w-5 h-5 bg-blue-500 rounded"></div>
                         )}
                       </div>
                     </Checkbox>
