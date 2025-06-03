@@ -7,9 +7,10 @@ interface WeeklyTrackerProps {
   activities: Activity[];
   completions: ActivityCompletion[];
   onToggleCompletion: (activityId: string, date: string, completed: boolean) => void;
+  onEditActivity: (activity: Activity) => void;
 }
 
-export function WeeklyTracker({ activities, completions, onToggleCompletion }: WeeklyTrackerProps) {
+export function WeeklyTracker({ activities, completions, onToggleCompletion, onEditActivity }: WeeklyTrackerProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [summaryCollapsed, setSummaryCollapsed] = useState(true);
   const weekDates = getWeekDates(currentDate);
@@ -90,6 +91,7 @@ export function WeeklyTracker({ activities, completions, onToggleCompletion }: W
     
     return { completed, scheduled };
   };
+
 
   return (
     <div className="bg-white rounded-lg shadow-md p-2 sm:p-4">
@@ -244,7 +246,18 @@ export function WeeklyTracker({ activities, completions, onToggleCompletion }: W
             {activities.map((activity) => (
               <tr key={activity.id} className="border-t">
                 <td className="p-1 sm:p-2 font-medium text-xs sm:text-sm">
-                  <div className="break-words">{activity.name}</div>
+                  <div className="flex items-center justify-between group">
+                    <div className="break-words flex-1">{activity.name}</div>
+                    <button
+                      onClick={() => onEditActivity(activity)}
+                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 ml-2 p-1 text-gray-500 hover:text-blue-500 transition-all"
+                      aria-label="Edit activity"
+                    >
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
                 {weekDates.map((date, dayIndex) => {
                   const dateStr = formatDate(date);

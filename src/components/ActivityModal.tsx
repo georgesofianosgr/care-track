@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, Modal, ModalOverlay, Button, TextField, Label, Input, Checkbox } from 'react-aria-components';
 import { Activity } from '../types';
 import { getDayNames } from '../utils/dateUtils';
@@ -7,12 +7,25 @@ interface ActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (activity: Omit<Activity, 'id'>) => void;
+  editActivity?: Activity;
+  onUpdate?: (activityId: string, updates: Partial<Omit<Activity, 'id'>>) => void;
 }
 
-export function ActivityModal({ isOpen, onClose, onSave }: ActivityModalProps) {
+export function ActivityModal({ isOpen, onClose, onSave, editActivity, onUpdate }: ActivityModalProps) {
   const [name, setName] = useState('');
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const dayNames = getDayNames();
+  const isEditMode = !!editActivity;
+
+  useEffect(() => {
+    if (editActivity) {
+      setName(editActivity.name);
+      setSelectedDays(editActivity.days);
+    } else {
+      setName('');
+      setSelectedDays([]);
+    }
+  }, [editActivity, isOpen]);
 
   const handleDayToggle = (dayIndex: number) => {
     setSelectedDays(prev => 
@@ -24,10 +37,17 @@ export function ActivityModal({ isOpen, onClose, onSave }: ActivityModalProps) {
 
   const handleSave = () => {
     if (name.trim() && selectedDays.length > 0) {
-      onSave({
-        name: name.trim(),
-        days: selectedDays
-      });
+      if (isEditMode && editActivity && onUpdate) {
+        onUpdate(editActivity.id, {
+          name: name.trim(),
+          days: selectedDays
+        });
+      } else {
+        onSave({
+          name: name.trim(),
+          days: selectedDays
+        });
+      }
       setName('');
       setSelectedDays([]);
       onClose();
@@ -51,7 +71,9 @@ export function ActivityModal({ isOpen, onClose, onSave }: ActivityModalProps) {
         <Dialog className="outline-none"
           aria-labelledby="modal-title"
         >
-          <h2 id="modal-title" className="text-xl font-semibold mb-4">Add New Activity</h2>
+          <h2 id="modal-title" className="text-xl font-semibold mb-4">
+            {isEditMode ? 'Edit Activity' : 'Add New Activity'}
+          </h2>
           
           <div className="space-y-4">
             <TextField>
@@ -99,7 +121,7 @@ export function ActivityModal({ isOpen, onClose, onSave }: ActivityModalProps) {
               isDisabled={!name.trim() || selectedDays.length === 0}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              Save
+              {isEditMode ? 'Update' : 'Save'}
             </Button>
           </div>
         </Dialog>

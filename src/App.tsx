@@ -12,6 +12,7 @@ function App() {
   });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
   const handleAddActivity = (activityData: Omit<Activity, 'id'>) => {
     const newActivity: Activity = {
@@ -22,6 +23,17 @@ function App() {
     setWeekData(prev => ({
       ...prev,
       activities: [...prev.activities, newActivity]
+    }));
+  };
+
+  const handleUpdateActivity = (activityId: string, updates: Partial<Omit<Activity, 'id'>>) => {
+    setWeekData(prev => ({
+      ...prev,
+      activities: prev.activities.map(activity =>
+        activity.id === activityId
+          ? { ...activity, ...updates }
+          : activity
+      )
     }));
   };
 
@@ -57,7 +69,10 @@ function App() {
     <div className="min-h-screen bg-gray-50 p-2 sm:p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">CareTrack</h1>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">CareTrack</h1>
+            <p className="text-sm text-gray-600 hidden sm:block">Track your daily activities</p>
+          </div>
           <Button
             onPress={() => setIsModalOpen(true)}
             className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-600 font-medium text-sm sm:text-base"
@@ -70,12 +85,18 @@ function App() {
           activities={weekData.activities}
           completions={weekData.completions}
           onToggleCompletion={handleToggleCompletion}
+          onEditActivity={setEditingActivity}
         />
 
         <ActivityModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isModalOpen || !!editingActivity}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingActivity(null);
+          }}
           onSave={handleAddActivity}
+          editActivity={editingActivity || undefined}
+          onUpdate={handleUpdateActivity}
         />
       </div>
     </div>
