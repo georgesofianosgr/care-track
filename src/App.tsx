@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from 'react-aria-components';
 import { Activity, WeekData } from './types';
 import { WeeklyTracker } from './components/WeeklyTracker';
 import { WeeklySummary } from './components/WeeklySummary';
@@ -12,7 +11,7 @@ function App() {
     activities: [],
     completions: []
   });
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -80,8 +79,8 @@ function App() {
     <div className="min-h-screen pb-16">
       <div className="custom-gradient px-2 sm:px-4 pt-6 sm:pt-8 pb-16">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center" style={{marginTop: '20px'}}>
-            <h1 className="text-4xl sm:text-5xl tracking-wide text-white" style={{fontFamily: 'Roboto, sans-serif'}}>
+          <div className="text-center" style={{ marginTop: '20px' }}>
+            <h1 className="text-4xl sm:text-5xl tracking-wide text-white" style={{ fontFamily: 'Roboto, sans-serif' }}>
               <span className="font-bold">Care</span><span className="font-thin">Track</span>
             </h1>
           </div>
@@ -115,7 +114,7 @@ function App() {
           onDelete={handleDeleteActivity}
         />
       </div>
-      
+
       <BottomNavigation onAddActivity={() => setIsModalOpen(true)} />
     </div>
   );
