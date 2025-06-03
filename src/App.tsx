@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from 'react-aria-components';
-import { Activity, ActivityCompletion, WeekData } from './types';
+import { Activity, WeekData } from './types';
 import { WeeklyTracker } from './components/WeeklyTracker';
 import { ActivityModal } from './components/ActivityModal';
 import { useLocalStorage } from './hooks/useLocalStorage';
