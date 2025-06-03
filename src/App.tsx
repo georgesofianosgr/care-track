@@ -37,6 +37,14 @@ function App() {
     }));
   };
 
+  const handleDeleteActivity = (activityId: string) => {
+    setWeekData(prev => ({
+      ...prev,
+      activities: prev.activities.filter(activity => activity.id !== activityId),
+      completions: prev.completions.filter(completion => completion.activityId !== activityId)
+    }));
+  };
+
   const handleToggleCompletion = (activityId: string, date: string, completed: boolean) => {
     setWeekData(prev => {
       const existingCompletionIndex = prev.completions.findIndex(
@@ -97,6 +105,7 @@ function App() {
           onSave={handleAddActivity}
           editActivity={editingActivity || undefined}
           onUpdate={handleUpdateActivity}
+          onDelete={handleDeleteActivity}
         />
       </div>
     </div>
