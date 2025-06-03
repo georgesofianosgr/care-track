@@ -9,24 +9,21 @@ export function BottomNavigation({ onAddActivity }: BottomNavigationProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-1 safe-area-pb">
       <div className="flex justify-around items-center max-w-sm mx-auto">
-        <Button className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
-          <Home size={20} className="text-blue-500" />
-          <span className="text-xs text-gray-600 mt-0.5">Home</span>
+        <Button className="flex items-center justify-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+          <Home size={24} className="text-gray-500" />
         </Button>
         
         <Button 
           onPress={onAddActivity}
-          className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center p-3 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="bg-blue-500 rounded-full p-1.5">
-            <Plus size={20} className="text-white" />
+          <div className="bg-gray-700 rounded-full p-2">
+            <Plus size={24} className="text-white" />
           </div>
-          <span className="text-xs text-gray-600 mt-0.5">Add</span>
         </Button>
         
-        <Button className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 transition-colors opacity-50 cursor-not-allowed">
-          <BarChart3 size={20} className="text-gray-400" />
-          <span className="text-xs text-gray-600 mt-0.5">Progress</span>
+        <Button className="flex items-center justify-center p-3 rounded-lg hover:bg-gray-100 transition-colors opacity-50 cursor-not-allowed">
+          <BarChart3 size={24} className="text-gray-400" />
         </Button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from 'react-aria-components';
 import { Activity, WeekData } from './types';
 import { WeeklyTracker } from './components/WeeklyTracker';
+import { WeeklySummary } from './components/WeeklySummary';
 import { ActivityModal } from './components/ActivityModal';
 import { BottomNavigation } from './components/BottomNavigation';
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -14,6 +15,7 @@ function App() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleAddActivity = (activityData: Omit<Activity, 'id'>) => {
     const newActivity: Activity = {
@@ -75,26 +77,30 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 pb-16">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">CareTrack</h1>
-            <p className="text-sm text-gray-600 hidden sm:block">Track your daily activities</p>
+    <div className="min-h-screen pb-16">
+      <div className="custom-gradient px-2 sm:px-4 pt-6 sm:pt-8 pb-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center" style={{marginTop: '20px'}}>
+            <h1 className="text-4xl sm:text-5xl tracking-wide text-white" style={{fontFamily: 'Roboto, sans-serif'}}>
+              <span className="font-bold">Care</span><span className="font-thin">Track</span>
+            </h1>
           </div>
-          <Button
-            onPress={() => setIsModalOpen(true)}
-            className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-600 font-medium text-sm sm:text-base sm:block hidden"
-          >
-            Add Activity
-          </Button>
         </div>
+      </div>
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 -mt-4">
+        <WeeklySummary
+          activities={weekData.activities}
+          completions={weekData.completions}
+          currentDate={currentDate}
+        />
 
         <WeeklyTracker
           activities={weekData.activities}
           completions={weekData.completions}
           onToggleCompletion={handleToggleCompletion}
           onEditActivity={setEditingActivity}
+          currentDate={currentDate}
+          onDateChange={setCurrentDate}
         />
 
         <ActivityModal

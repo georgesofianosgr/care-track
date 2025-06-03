@@ -5,6 +5,11 @@ body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.custom-gradient {
+  background: linear-gradient(to bottom right, #4ED6C3, #4DD7DA, #4BA1F2);
 }
 
 .safe-area-pb {
