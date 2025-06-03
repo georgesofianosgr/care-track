@@ -6,3 +6,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}

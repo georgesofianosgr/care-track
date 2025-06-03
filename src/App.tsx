@@ -3,6 +3,7 @@ import { Button } from 'react-aria-components';
 import { Activity, WeekData } from './types';
 import { WeeklyTracker } from './components/WeeklyTracker';
 import { ActivityModal } from './components/ActivityModal';
+import { BottomNavigation } from './components/BottomNavigation';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
 function App() {
@@ -74,7 +75,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 sm:p-4">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 pb-16">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <div>
@@ -83,7 +84,7 @@ function App() {
           </div>
           <Button
             onPress={() => setIsModalOpen(true)}
-            className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-600 font-medium text-sm sm:text-base"
+            className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-600 font-medium text-sm sm:text-base sm:block hidden"
           >
             Add Activity
           </Button>
@@ -108,6 +109,8 @@ function App() {
           onDelete={handleDeleteActivity}
         />
       </div>
+      
+      <BottomNavigation onAddActivity={() => setIsModalOpen(true)} />
     </div>
   );
 }

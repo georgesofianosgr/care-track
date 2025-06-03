@@ -82,7 +82,7 @@ export function ActivityModal({ isOpen, onClose, onSave, editActivity, onUpdate,
     <ModalOverlay 
       isOpen={isOpen} 
       onOpenChange={handleClose} 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
       isDismissable
     >
       <Modal className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-auto shadow-lg">
