@@ -77,10 +77,10 @@ function App() {
 
   return (
     <div className="min-h-screen pb-16">
-      <div className="custom-gradient px-2 sm:px-4 pt-6 sm:pt-8 pb-16">
+      <div className="px-2 sm:px-4 pt-6 sm:pt-8 pb-16" style={{ backgroundColor: '#F9FAFB' }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center" style={{ marginTop: '20px' }}>
-            <h1 className="text-4xl sm:text-5xl tracking-wide text-white" style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <h1 className="text-4xl sm:text-5xl tracking-wide text-gray-900" style={{ fontFamily: 'Roboto, sans-serif' }}>
               <span className="font-bold">Care</span><span className="font-thin">Track</span>
             </h1>
           </div>

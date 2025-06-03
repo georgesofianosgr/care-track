@@ -4,7 +4,7 @@
   "description": "Track your daily activities and build healthy habits",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F9FAFB",
+  "background_color": "#3B82F6",
   "theme_color": "#3B82F6",
   "orientation": "portrait-primary",
   "scope": "/",
