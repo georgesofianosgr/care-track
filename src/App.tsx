@@ -5,6 +5,7 @@ import { WeeklySummary } from './components/WeeklySummary';
 import { ActivityModal } from './components/ActivityModal';
 import { BottomNavigation } from './components/BottomNavigation';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import logo from './assets/logo.png';
 
 function App() {
   const [weekData, setWeekData] = useLocalStorage<WeekData>('caretrack-data', {
@@ -80,6 +81,7 @@ function App() {
       <div className="px-2 sm:px-4 pt-6 sm:pt-8 pb-16" style={{ backgroundColor: '#F9FAFB' }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center" style={{ marginTop: '20px' }}>
+            <img src={logo} alt="CareTrack Logo" className="w-16 h-16 mx-auto mb-4" />
             <h1 className="text-4xl sm:text-5xl tracking-wide text-gray-900" style={{ fontFamily: 'Roboto, sans-serif' }}>
               <span className="font-bold">Care</span><span className="font-thin">Track</span>
             </h1>
