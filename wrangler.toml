@@ -1,5 +1,0 @@
-name = "caretrack"
-compatibility_date = "2024-12-06"
-
-# This tells Wrangler this is a Pages project
-pages_build_output_dir = "dist"
