@@ -16,7 +16,7 @@ export function useAuth() {
   const { data: user, isLoading: userLoading, error } = useUserById(storedUserId || '');
   
   // Query for user by email when logging in
-  const { data: userByEmail, refetch: refetchUserByEmail } = useQuery({
+  const { refetch: refetchUserByEmail } = useQuery({
     ...getUserByEmailQuery(loginEmail),
     enabled: false, // We'll manually trigger this
   });

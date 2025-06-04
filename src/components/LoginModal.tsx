@@ -38,7 +38,7 @@ export function LoginModal({ isOpen, onLogin, isLoading }: LoginModalProps) {
 
     try {
       await onLogin(email.trim(), firstName.trim(), lastName.trim());
-    } catch (err) {
+    } catch {
       setError('Failed to sign in. Please try again.');
     }
   };

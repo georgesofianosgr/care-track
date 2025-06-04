@@ -154,7 +154,6 @@ export const useDeleteActivityEntry = () => {
 export const useToggleActivityCompletion = () => {
   const createEntry = useCreateActivityEntry();
   const updateEntry = useUpdateActivityEntry();
-  const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async ({ 
