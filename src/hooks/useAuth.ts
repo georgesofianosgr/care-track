@@ -1,59 +1,73 @@
 import { useState, useEffect } from 'react';
-import { DatabaseService, User } from '../db';
+import { User } from '../db';
+import { useUserById, getUserByEmailQuery } from './queries';
+import { useCreateUser } from './mutations';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useAuth() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  
+  const queryClient = useQueryClient();
+  const createUserMutation = useCreateUser();
+  
+  const storedUserId = localStorage.getItem('caretrack_current_user_id');
+  const { data: user, isLoading: userLoading, error } = useUserById(storedUserId || '');
+  
+  // Query for user by email when logging in
+  const { data: userByEmail, refetch: refetchUserByEmail } = useQuery({
+    ...getUserByEmailQuery(loginEmail),
+    enabled: false, // We'll manually trigger this
+  });
 
   useEffect(() => {
-    const loadUser = async () => {
-      const storedUserId = localStorage.getItem('caretrack_current_user_id');
-      
-      if (storedUserId) {
-        try {
-          const user = await DatabaseService.users.findById(storedUserId);
-          setCurrentUser(user);
-        } catch (error) {
-          console.error('Failed to load user:', error);
-          localStorage.removeItem('caretrack_current_user_id');
-        }
-      }
-      
-      setIsLoading(false);
-    };
-
-    loadUser();
-  }, []);
+    if (storedUserId && error) {
+      localStorage.removeItem('caretrack_current_user_id');
+    }
+    
+    if (user) {
+      setCurrentUser(user);
+    }
+    
+    setIsLoading(userLoading);
+  }, [user, userLoading, error, storedUserId]);
 
   const loginWithEmail = async (email: string, firstName: string, lastName: string) => {
     setIsLoading(true);
+    setLoginEmail(email);
     
     try {
-      let user = await DatabaseService.users.findByEmail(email);
+      // Fetch user by email
+      const { data: existingUser } = await refetchUserByEmail();
       
-      if (!user) {
-        user = await DatabaseService.users.create({
+      let finalUser = existingUser;
+      
+      if (!finalUser) {
+        finalUser = await createUserMutation.mutateAsync({
           email,
           firstName,
           lastName,
         });
       }
       
-      setCurrentUser(user);
-      localStorage.setItem('caretrack_current_user_id', user.id);
+      setCurrentUser(finalUser);
+      localStorage.setItem('caretrack_current_user_id', finalUser.id);
       
-      return user;
+      return finalUser;
     } catch (error) {
       console.error('Failed to login:', error);
       throw error;
     } finally {
       setIsLoading(false);
+      setLoginEmail('');
     }
   };
 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('caretrack_current_user_id');
+    queryClient.clear(); // Clear all cached data on logout
   };
 
   return {

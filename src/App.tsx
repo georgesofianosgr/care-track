@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Activity, WeekData } from './types';
 import { WeeklyTracker } from './components/WeeklyTracker';
 import { WeeklySummary } from './components/WeeklySummary';
@@ -6,81 +6,53 @@ import { ActivityModal } from './components/ActivityModal';
 import { BottomNavigation } from './components/BottomNavigation';
 import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
-import { DatabaseService } from './db';
+import { useActivitiesByUserId, useActivityEntriesByUserId } from './hooks/queries';
+import { useCreateActivity, useUpdateActivity, useDeleteActivityWithEntries, useToggleActivityCompletion } from './hooks/mutations';
 import logo from './assets/logo.png';
 
 function App() {
   const { currentUser, isLoading, isAuthenticated, loginWithEmail } = useAuth();
-  const [weekData, setWeekData] = useState<WeekData>({
-    activities: [],
-    completions: []
-  });
-  const [dataLoading, setDataLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  useEffect(() => {
-    if (currentUser) {
-      loadUserData();
-    }
-  }, [currentUser]);
+  // TanStack Query hooks
+  const { data: activities = [], isLoading: activitiesLoading } = useActivitiesByUserId(currentUser?.id || '');
+  const { data: activityEntries = [], isLoading: entriesLoading } = useActivityEntriesByUserId(currentUser?.id || '');
 
-  const loadUserData = async () => {
-    if (!currentUser) return;
-    
-    setDataLoading(true);
-    try {
-      const [activities, activityEntries] = await Promise.all([
-        DatabaseService.activities.findByUserId(currentUser.id),
-        DatabaseService.activityEntries.findByUserId(currentUser.id)
-      ]);
+  // Mutations
+  const createActivityMutation = useCreateActivity();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivityWithEntries();
+  const toggleCompletionMutation = useToggleActivityCompletion();
 
-      const mappedActivities: Activity[] = activities.map(activity => ({
-        id: activity.id,
-        name: activity.name,
-        days: [0, 1, 2, 3, 4, 5, 6]
-      }));
-
-      const mappedCompletions = activityEntries.map(entry => ({
-        activityId: entry.activityId,
-        date: entry.date,
-        completed: entry.completed
-      }));
-
-      setWeekData({
-        activities: mappedActivities,
-        completions: mappedCompletions
-      });
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-    } finally {
-      setDataLoading(false);
-    }
+  // Transform data for components
+  const weekData: WeekData = {
+    activities: activities.map(activity => ({
+      id: activity.id,
+      name: activity.name,
+      days: [0, 1, 2, 3, 4, 5, 6] // Default to all days for now
+    })),
+    completions: activityEntries.map(entry => ({
+      activityId: entry.activityId,
+      date: entry.date,
+      completed: entry.completed
+    }))
   };
+
+  const dataLoading = activitiesLoading || entriesLoading;
 
   const handleAddActivity = async (activityData: Omit<Activity, 'id'>) => {
     if (!currentUser) return;
 
     try {
-      const newActivity = await DatabaseService.activities.create({
+      await createActivityMutation.mutateAsync({
         name: activityData.name,
         category: 'General',
         color: '#6b7280',
         userId: currentUser.id,
         isActive: true
       });
-
-      const mappedActivity: Activity = {
-        id: newActivity.id,
-        name: newActivity.name,
-        days: activityData.days
-      };
-
-      setWeekData(prev => ({
-        ...prev,
-        activities: [...prev.activities, mappedActivity]
-      }));
     } catch (error) {
       console.error('Failed to add activity:', error);
     }
@@ -88,18 +60,12 @@ function App() {
 
   const handleUpdateActivity = async (activityId: string, updates: Partial<Omit<Activity, 'id'>>) => {
     try {
-      await DatabaseService.activities.update(activityId, {
-        name: updates.name
+      await updateActivityMutation.mutateAsync({
+        id: activityId,
+        data: {
+          name: updates.name
+        }
       });
-
-      setWeekData(prev => ({
-        ...prev,
-        activities: prev.activities.map(activity =>
-          activity.id === activityId
-            ? { ...activity, ...updates }
-            : activity
-        )
-      }));
     } catch (error) {
       console.error('Failed to update activity:', error);
     }
@@ -107,16 +73,7 @@ function App() {
 
   const handleDeleteActivity = async (activityId: string) => {
     try {
-      await DatabaseService.activities.delete(activityId);
-      
-      const entries = await DatabaseService.activityEntries.findByActivityId(activityId);
-      await Promise.all(entries.map(entry => DatabaseService.activityEntries.delete(entry.id)));
-
-      setWeekData(prev => ({
-        ...prev,
-        activities: prev.activities.filter(activity => activity.id !== activityId),
-        completions: prev.completions.filter(completion => completion.activityId !== activityId)
-      }));
+      await deleteActivityMutation.mutateAsync(activityId);
     } catch (error) {
       console.error('Failed to delete activity:', error);
     }
@@ -126,43 +83,11 @@ function App() {
     if (!currentUser) return;
 
     try {
-      const existingEntry = await DatabaseService.activityEntries.findByActivityAndDate(activityId, date);
-      
-      if (existingEntry) {
-        await DatabaseService.activityEntries.update(existingEntry.id, { completed });
-      } else {
-        await DatabaseService.activityEntries.create({
-          activityId,
-          userId: currentUser.id,
-          date,
-          completed
-        });
-      }
-
-      setWeekData(prev => {
-        const existingCompletionIndex = prev.completions.findIndex(
-          c => c.activityId === activityId && c.date === date
-        );
-
-        let newCompletions;
-        if (existingCompletionIndex >= 0) {
-          newCompletions = [...prev.completions];
-          newCompletions[existingCompletionIndex] = {
-            ...newCompletions[existingCompletionIndex],
-            completed
-          };
-        } else {
-          newCompletions = [...prev.completions, {
-            activityId,
-            date,
-            completed
-          }];
-        }
-
-        return {
-          ...prev,
-          completions: newCompletions
-        };
+      await toggleCompletionMutation.mutateAsync({
+        activityId,
+        userId: currentUser.id,
+        date,
+        completed
       });
     } catch (error) {
       console.error('Failed to toggle completion:', error);
@@ -187,7 +112,7 @@ function App() {
         onLogin={loginWithEmail}
         isLoading={isLoading}
       />
-      
+
       {isAuthenticated && (
         <>
           <div className="px-2 sm:px-4 pt-6 sm:pt-8 pb-16" style={{ backgroundColor: '#F9FAFB' }}>
